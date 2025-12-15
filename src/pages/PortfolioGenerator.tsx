@@ -36,33 +36,33 @@ const PortfolioGenerator = () => {
   return (
     <DashboardLayout>
       <div className="max-w-6xl mx-auto">
-        <div className="flex items-center gap-4 mb-8">
-          <div className="w-14 h-14 rounded-xl coral-gradient flex items-center justify-center">
-            <Layout className="w-7 h-7 text-accent-foreground" />
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Layout className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">Portfolio Generator</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-xl font-bold">Portfolio Generator</h1>
+            <p className="text-muted-foreground text-sm">
               Generate a beautiful HTML portfolio
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Input Section */}
-          <div className="space-y-6">
-            <div className="glass-card p-6">
-              <h2 className="font-semibold mb-4">Select Sections</h2>
-              <p className="text-sm text-muted-foreground mb-6">
+          <div className="space-y-4">
+            <div className="glass-card p-5">
+              <h2 className="font-medium mb-3">Select Sections</h2>
+              <p className="text-xs text-muted-foreground mb-4">
                 Choose which sections to include in your portfolio
               </p>
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {sections.map((section) => (
                   <div 
                     key={section.id}
-                    className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+                    className="flex items-center justify-between p-3 bg-muted/50 rounded-md"
                   >
-                    <Label htmlFor={section.id} className="cursor-pointer font-medium">
+                    <Label htmlFor={section.id} className="cursor-pointer text-sm">
                       {section.label}
                     </Label>
                     <Switch
@@ -76,7 +76,6 @@ const PortfolioGenerator = () => {
             </div>
 
             <Button 
-              variant="hero" 
               size="lg" 
               className="w-full"
               onClick={handleGenerate}
@@ -89,42 +88,41 @@ const PortfolioGenerator = () => {
           {/* Preview Section */}
           <div className="glass-card overflow-hidden">
             <div className="p-4 border-b border-border flex items-center justify-between">
-              <span className="font-medium">Portfolio Preview</span>
+              <span className="font-medium text-sm">Portfolio Preview</span>
               {portfolioGenerated && (
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm">
-                    <ExternalLink className="w-4 h-4 mr-1" />
+                    <ExternalLink className="w-3.5 h-3.5 mr-1" />
                     Preview
                   </Button>
-                  <Button variant="default" size="sm">
-                    <Download className="w-4 h-4 mr-1" />
+                  <Button size="sm">
+                    <Download className="w-3.5 h-3.5 mr-1" />
                     Download
                   </Button>
                 </div>
               )}
             </div>
             
-            <div className="aspect-[4/3] bg-gradient-to-br from-muted to-muted/50 p-4 overflow-hidden">
+            <div className="aspect-[4/3] bg-muted/30 p-4 overflow-hidden">
               {portfolioGenerated ? (
-                <div className="bg-card rounded-lg shadow-lg h-full overflow-hidden animate-scale-in">
-                  {/* Mini portfolio mockup */}
+                <div className="bg-card rounded-lg border border-border h-full overflow-hidden animate-scale-in">
                   <div className="h-full flex flex-col">
                     {/* Header */}
-                    <div className="p-4 ocean-gradient text-primary-foreground">
-                      <div className="w-16 h-16 rounded-full bg-card/20 mx-auto mb-2" />
-                      <div className="h-4 w-24 bg-card/30 rounded mx-auto mb-1" />
-                      <div className="h-3 w-32 bg-card/20 rounded mx-auto" />
+                    <div className="p-4 bg-primary text-primary-foreground">
+                      <div className="w-14 h-14 rounded-full bg-primary-foreground/20 mx-auto mb-2" />
+                      <div className="h-3 w-20 bg-primary-foreground/30 rounded mx-auto mb-1" />
+                      <div className="h-2 w-28 bg-primary-foreground/20 rounded mx-auto" />
                     </div>
                     
                     {/* Sections */}
-                    <div className="flex-1 p-4 space-y-3">
+                    <div className="flex-1 p-4 space-y-2">
                       {Object.entries(selectedSections)
                         .filter(([_, enabled]) => enabled)
                         .slice(0, 4)
                         .map(([id]) => (
                           <div key={id} className="flex items-center gap-2">
-                            <Check className="w-4 h-4 text-primary" />
-                            <div className="h-3 w-full bg-muted rounded" />
+                            <Check className="w-3.5 h-3.5 text-primary" />
+                            <div className="h-2 w-full bg-muted rounded" />
                           </div>
                         ))}
                     </div>
@@ -133,8 +131,8 @@ const PortfolioGenerator = () => {
               ) : (
                 <div className="h-full flex items-center justify-center text-center">
                   <div>
-                    <Layout className="w-16 h-16 mx-auto mb-4 text-muted-foreground/50" />
-                    <h3 className="text-lg font-medium mb-2">No Preview Yet</h3>
+                    <Layout className="w-12 h-12 mx-auto mb-3 text-muted-foreground/40" />
+                    <h3 className="font-medium mb-1">No Preview Yet</h3>
                     <p className="text-muted-foreground text-sm">
                       Select sections and generate to see preview
                     </p>
