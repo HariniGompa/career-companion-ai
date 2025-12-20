@@ -2,9 +2,29 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { User, Mail, Camera } from "lucide-react";
+import { User, Mail, Camera, FolderOpen, FileText, Trash2, Calendar, Edit, Plus } from "lucide-react";
+import { useResumes } from "@/hooks/useResumes";
+import { useNavigate } from "react-router-dom";
+import { format } from "date-fns";
 
 const Profile = () => {
+  const { resumes, loading, resumeCount, maxResumes, deleteResume, canCreateResume } = useResumes();
+  const navigate = useNavigate();
+
+  const handleEdit = (resumeId: string) => {
+    navigate(`/resume-builder?id=${resumeId}`);
+  };
+
+  const handleDelete = async (resumeId: string) => {
+    if (confirm("Are you sure you want to delete this resume?")) {
+      await deleteResume(resumeId);
+    }
+  };
+
+  const handleCreate = () => {
+    navigate("/resume-builder");
+  };
+
   return (
     <DashboardLayout>
       <div className="max-w-2xl mx-auto">
@@ -68,6 +88,90 @@ const Profile = () => {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Resume Library Section */}
+          <div className="glass-card overflow-hidden">
+            <div className="p-6 border-b border-border flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <FolderOpen className="w-5 h-5 text-primary" />
+                <div>
+                  <h2 className="font-semibold">Resume Library</h2>
+                  <p className="text-sm text-muted-foreground">
+                    {resumeCount} of {maxResumes} resumes stored
+                  </p>
+                </div>
+              </div>
+              {canCreateResume() && (
+                <Button onClick={handleCreate} size="sm" className="gap-2">
+                  <Plus className="w-4 h-4" />
+                  New
+                </Button>
+              )}
+            </div>
+            
+            {loading ? (
+              <div className="p-8 text-center">
+                <p className="text-muted-foreground">Loading resumes...</p>
+              </div>
+            ) : resumes.length === 0 ? (
+              <div className="p-8 text-center">
+                <FolderOpen className="w-12 h-12 mx-auto mb-3 text-muted-foreground/50" />
+                <h3 className="font-medium mb-1">No Resumes Yet</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Create your first resume to get started.
+                </p>
+                <Button onClick={handleCreate} size="sm" className="gap-2">
+                  <Plus className="w-4 h-4" />
+                  Create Resume
+                </Button>
+              </div>
+            ) : (
+              <div className="divide-y divide-border">
+                {resumes.map((resume) => (
+                  <div 
+                    key={resume.id}
+                    className="p-4 flex items-center gap-4 hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <FileText className="w-5 h-5 text-primary" />
+                    </div>
+                    
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium truncate text-sm">{resume.name}</h3>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span className="px-1.5 py-0.5 bg-muted rounded capitalize">
+                          {resume.template}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          {format(new Date(resume.updated_at), "MMM d, yyyy")}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8"
+                        onClick={() => handleEdit(resume.id)}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                        onClick={() => handleDelete(resume.id)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Account Actions */}
