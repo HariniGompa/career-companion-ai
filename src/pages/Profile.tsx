@@ -1,15 +1,79 @@
+import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { User, Mail, Camera, FolderOpen, FileText, Trash2, Calendar, Edit } from "lucide-react";
+import { User, Mail, Camera, FolderOpen, FileText, Trash2, Calendar, Edit, Loader2 } from "lucide-react";
 import { useResumes } from "@/hooks/useResumes";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Profile = () => {
   const { resumes, loading, resumeCount, maxResumes, deleteResume } = useResumes();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  
+  const [displayName, setDisplayName] = useState("");
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("display_name")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        
+        if (error) throw error;
+        
+        if (data?.display_name) {
+          setDisplayName(data.display_name);
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      } finally {
+        setProfileLoading(false);
+      }
+    };
+    
+    fetchProfile();
+  }, [user]);
+
+  const handleSave = async () => {
+    if (!user) return;
+    
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ display_name: displayName })
+        .eq("user_id", user.id);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Profile updated",
+        description: "Your changes have been saved.",
+      });
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update profile. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleEdit = (resumeId: string) => {
     navigate(`/resume-builder?id=${resumeId}`);
@@ -20,7 +84,6 @@ const Profile = () => {
       await deleteResume(resumeId);
     }
   };
-
 
   return (
     <DashboardLayout>
@@ -62,29 +125,39 @@ const Profile = () => {
           {/* Personal Info */}
           <div className="glass-card p-6">
             <h2 className="font-semibold mb-4">Personal Information</h2>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="name">Full Name</Label>
-                <Input
-                  id="name"
-                  placeholder="John Doe"
-                  defaultValue="John Doe"
-                />
+            {profileLoading ? (
+              <div className="flex items-center justify-center py-4">
+                <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
               </div>
-              <div>
-                <Label htmlFor="email">Email Address</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="name">Display Name</Label>
                   <Input
-                    id="email"
-                    type="email"
-                    placeholder="john@example.com"
-                    defaultValue="john@example.com"
-                    className="pl-10"
+                    id="name"
+                    placeholder="Enter your name"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
                   />
                 </div>
+                <div>
+                  <Label htmlFor="email">Email Address</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      id="email"
+                      type="email"
+                      value={user?.email || ""}
+                      className="pl-10"
+                      disabled
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Email cannot be changed
+                  </p>
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Resume Library Section */}
@@ -174,8 +247,21 @@ const Profile = () => {
             </div>
           </div>
 
-          <Button variant="hero" size="lg" className="w-full">
-            Save Changes
+          <Button 
+            variant="hero" 
+            size="lg" 
+            className="w-full"
+            onClick={handleSave}
+            disabled={saving || profileLoading}
+          >
+            {saving ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              "Save Changes"
+            )}
           </Button>
         </div>
       </div>
