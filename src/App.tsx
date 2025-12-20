@@ -19,7 +19,7 @@ import PortfolioGenerator from "./pages/PortfolioGenerator";
 import SkillRecommendation from "./pages/SkillRecommendation";
 import InterviewPrep from "./pages/InterviewPrep";
 import Profile from "./pages/Profile";
-import FileLibrary from "./pages/FileLibrary";
+
 import Help from "./pages/Help";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
@@ -49,7 +49,7 @@ const App = () => (
               <Route path="/dashboard/skill-recommendation" element={<ProtectedRoute><SkillRecommendation /></ProtectedRoute>} />
               <Route path="/dashboard/interview" element={<ProtectedRoute><InterviewPrep /></ProtectedRoute>} />
               <Route path="/dashboard/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-              <Route path="/dashboard/files" element={<ProtectedRoute><FileLibrary /></ProtectedRoute>} />
+              
               <Route path="/help" element={<Help />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

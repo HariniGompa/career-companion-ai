@@ -8,7 +8,6 @@ import {
   MessageSquare,
   Lightbulb,
   User,
-  FolderOpen,
   HelpCircle,
   LogOut,
   Menu,
@@ -34,7 +33,6 @@ const navItems = [
 
 const bottomNavItems = [
   { icon: User, label: "Profile", path: "/dashboard/profile" },
-  { icon: FolderOpen, label: "File Library", path: "/dashboard/files" },
   { icon: HelpCircle, label: "Help", path: "/help" },
 ];
 
