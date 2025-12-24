@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +6,6 @@ import { Label } from "@/components/ui/label";
 import {
   User,
   Mail,
-  Camera,
   FolderOpen,
   FileText,
   Trash2,
@@ -20,19 +19,22 @@ import { format } from "date-fns";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { AVATARS } from "@/constants/avatars";
 
 const Profile = () => {
   const { resumes, loading, resumeCount, maxResumes, deleteResume } =
     useResumes();
-  const navigate = useNavigate();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { toast } = useToast();
 
   const [displayName, setDisplayName] = useState("");
   const [originalName, setOriginalName] = useState("");
+  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
+  const [originalAvatar, setOriginalAvatar] = useState<string | null>(null);
+
   const [profileLoading, setProfileLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [avatarUploading, setAvatarUploading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   /* ---------------- FETCH PROFILE ---------------- */
@@ -46,7 +48,7 @@ const Profile = () => {
       try {
         const { data, error } = await supabase
           .from("profiles")
-          .select("display_name")
+          .select("display_name, avatar_id")
           .eq("user_id", user.id)
           .maybeSingle();
 
@@ -55,6 +57,11 @@ const Profile = () => {
         if (data?.display_name) {
           setDisplayName(data.display_name);
           setOriginalName(data.display_name);
+        }
+
+        if (data?.avatar_id) {
+          setSelectedAvatar(data.avatar_id);
+          setOriginalAvatar(data.avatar_id);
         }
       } catch (err) {
         console.error(err);
@@ -67,23 +74,28 @@ const Profile = () => {
   }, [user]);
 
   const isDirty =
-    displayName.trim().length > 0 &&
-    displayName.trim() !== originalName;
+    displayName.trim() !== originalName ||
+    selectedAvatar !== originalAvatar;
 
   /* ---------------- SAVE PROFILE ---------------- */
   const handleSave = async () => {
-    if (!user || !isDirty) return;
+    if (!user || !isDirty || !displayName.trim()) return;
 
     setSaving(true);
     try {
       const { error } = await supabase
         .from("profiles")
-        .update({ display_name: displayName.trim() })
+        .update({
+          display_name: displayName.trim(),
+          avatar_id: selectedAvatar,
+        })
         .eq("user_id", user.id);
 
       if (error) throw error;
 
       setOriginalName(displayName.trim());
+      setOriginalAvatar(selectedAvatar);
+
       toast({ title: "Profile updated" });
     } catch {
       toast({
@@ -92,44 +104,6 @@ const Profile = () => {
       });
     } finally {
       setSaving(false);
-    }
-  };
-
-  /* ---------------- AVATAR UPLOAD ---------------- */
-  const handleAvatarUpload = async (file: File) => {
-    if (!user) return;
-
-    if (file.size > 2 * 1024 * 1024) {
-      toast({
-        title: "File too large (max 2MB)",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setAvatarUploading(true);
-    const filePath = `${user.id}/avatar.png`;
-
-    try {
-      const { error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(filePath, file, { upsert: true });
-
-      if (uploadError) throw uploadError;
-
-      await supabase
-        .from("profiles")
-        .update({ avatar_url: filePath })
-        .eq("user_id", user.id);
-
-      toast({ title: "Avatar updated" });
-    } catch {
-      toast({
-        title: "Avatar upload failed",
-        variant: "destructive",
-      });
-    } finally {
-      setAvatarUploading(false);
     }
   };
 
@@ -161,7 +135,17 @@ const Profile = () => {
         {/* HEADER */}
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-xl ocean-gradient flex items-center justify-center">
-            <User className="w-7 h-7 text-primary-foreground" />
+            {selectedAvatar ? (
+              <img
+                src={
+                  AVATARS.find((a) => a.id === selectedAvatar)?.src
+                }
+                alt="Avatar"
+                className="w-full h-full rounded-xl object-cover"
+              />
+            ) : (
+              <User className="w-7 h-7 text-primary-foreground" />
+            )}
           </div>
           <div>
             <h1 className="text-2xl font-bold">Profile</h1>
@@ -171,43 +155,31 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* AVATAR */}
+        {/* AVATAR SELECTION */}
         <div className="glass-card p-6">
-          <h2 className="font-semibold mb-4">Profile Picture</h2>
-          <div className="flex items-center gap-6">
-            <div className="relative">
-              <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center">
-                <User className="w-12 h-12 text-muted-foreground" />
-              </div>
+          <h2 className="font-semibold mb-4">Choose Avatar</h2>
 
-              <input
-                type="file"
-                accept="image/*"
-                hidden
-                id="avatar-upload"
-                onChange={(e) =>
-                  e.target.files &&
-                  handleAvatarUpload(e.target.files[0])
-                }
-              />
-
+          <div className="grid grid-cols-4 gap-4">
+            {AVATARS.map((avatar) => (
               <button
-                aria-label="Upload avatar"
-                disabled={avatarUploading}
-                onClick={() =>
-                  document
-                    .getElementById("avatar-upload")
-                    ?.click()
-                }
-                className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow"
+                key={avatar.id}
+                aria-label={avatar.label}
+                onClick={() => setSelectedAvatar(avatar.id)}
+                className={`rounded-full p-1 border-2 transition
+                  ${
+                    selectedAvatar === avatar.id
+                      ? "border-primary"
+                      : "border-transparent hover:border-muted"
+                  }
+                `}
               >
-                {avatarUploading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Camera className="w-4 h-4" />
-                )}
+                <img
+                  src={avatar.src}
+                  alt={avatar.label}
+                  className="w-16 h-16 rounded-full"
+                />
               </button>
-            </div>
+            ))}
           </div>
         </div>
 
