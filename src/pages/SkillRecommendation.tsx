@@ -90,7 +90,7 @@ const SkillRecommendationPage = () => {
             <Lightbulb className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-xl font-bold">Skill Recommendation</h1>
+            <h1 className="text-xl font-bold">Course Recommendation</h1>
             <p className="text-muted-foreground text-sm">
               Get personalized skill recommendations for your career goals
             </p>

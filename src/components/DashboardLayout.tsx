@@ -27,7 +27,7 @@ const navItems = [
   { icon: FileSearch, label: "Resume Matcher", path: "/dashboard/resume-matcher" },
   { icon: FileEdit, label: "Resume Builder", path: "/dashboard/resume-builder" },
   { icon: Layout, label: "Portfolio Generator", path: "/dashboard/portfolio" },
-  { icon: Lightbulb, label: "Skill Recommendation", path: "/dashboard/skill-recommendation" },
+  { icon: Lightbulb, label: "Course Recommendation", path: "/dashboard/skill-recommendation" },
   { icon: MessageSquare, label: "Interview Prep", path: "/dashboard/interview" },
 ];
 
