@@ -25,6 +25,7 @@ const Signup = () => {
   const [privacyOpen, setPrivacyOpen] = useState(false);
 
   const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
+  const passwordValid = password.length >= 8;
 
   // Redirect if already logged in
   useEffect(() => {
