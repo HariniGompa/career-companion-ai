@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { FileEdit, Plus, Trash2, Download, Eye, Upload, Check, ArrowLeft, ArrowRight, Briefcase, GraduationCap, Loader2, Save, Github, Linkedin, Globe, Award, BadgeCheck, Building2 } from "lucide-react";
+import { FileEdit, Plus, Trash2, Download, Eye, Upload, Check, ArrowLeft, ArrowRight, Briefcase, GraduationCap, Loader2, Save, Github, Linkedin, Globe, Award, BadgeCheck, Building2, ExternalLink } from "lucide-react";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import { toast } from "sonner";
@@ -25,6 +25,7 @@ interface Education {
   degree: string;
   institution: string;
   year: string;
+  cgpa?: string;
 }
 
 interface Project {
@@ -32,6 +33,7 @@ interface Project {
   name: string;
   description: string;
   technologies: string;
+  githubLink?: string;
 }
 
 interface ProfileLink {
@@ -96,11 +98,11 @@ const ResumeBuilder = () => {
   ]);
   
   const [education, setEducation] = useState<Education[]>([
-    { id: "1", degree: "", institution: "", year: "" }
+    { id: "1", degree: "", institution: "", year: "", cgpa: "" }
   ]);
 
   const [projects, setProjects] = useState<Project[]>([
-    { id: "1", name: "", description: "", technologies: "" }
+    { id: "1", name: "", description: "", technologies: "", githubLink: "" }
   ]);
 
   const [profileLinks, setProfileLinks] = useState<ProfileLink[]>([
@@ -241,7 +243,7 @@ const ResumeBuilder = () => {
 
   // Education handlers
   const addEducation = () => {
-    setEducation([...education, { id: Date.now().toString(), degree: "", institution: "", year: "" }]);
+    setEducation([...education, { id: Date.now().toString(), degree: "", institution: "", year: "", cgpa: "" }]);
   };
   const removeEducation = (id: string) => {
     if (education.length > 1) setEducation(education.filter(e => e.id !== id));
@@ -252,7 +254,7 @@ const ResumeBuilder = () => {
 
   // Project handlers
   const addProject = () => {
-    setProjects([...projects, { id: Date.now().toString(), name: "", description: "", technologies: "" }]);
+    setProjects([...projects, { id: Date.now().toString(), name: "", description: "", technologies: "", githubLink: "" }]);
   };
   const removeProject = (id: string) => {
     if (projects.length > 1) setProjects(projects.filter(p => p.id !== id));
@@ -594,10 +596,22 @@ const ResumeBuilder = () => {
                 <h3 className="text-sm font-semibold text-blue-600 uppercase tracking-wider mb-3">Projects</h3>
                 {projects.filter(p => p.name).map((project) => (
                   <div key={project.id} className="mb-3">
-                    <h4 className="font-medium text-sm text-gray-900">{project.name}</h4>
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-medium text-sm text-gray-900">{project.name}</h4>
+                      {project.githubLink && (
+                        <a href={project.githubLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      )}
+                    </div>
                     <p className="text-gray-600 mt-1 text-xs">{project.description}</p>
                     {project.technologies && (
                       <p className="text-xs text-blue-600 mt-1">Tech: {project.technologies}</p>
+                    )}
+                    {project.githubLink && (
+                      <a href={project.githubLink} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline mt-1 inline-block">
+                        {project.githubLink}
+                      </a>
                     )}
                   </div>
                 ))}
@@ -614,6 +628,9 @@ const ResumeBuilder = () => {
                       <div>
                         <h4 className="font-medium text-sm text-gray-900">{edu.degree}</h4>
                         <p className="text-blue-600 text-sm">{edu.institution}</p>
+                        {edu.cgpa && (
+                          <p className="text-xs text-gray-600">CGPA / Percentage: {edu.cgpa}</p>
+                        )}
                       </div>
                       <span className="text-xs text-gray-500">{edu.year}</span>
                     </div>
@@ -948,14 +965,28 @@ const ResumeBuilder = () => {
                         className="mt-1 min-h-[60px] resize-none"
                       />
                     </div>
-                    <div>
-                      <Label className="text-xs">Technologies Used</Label>
-                      <Input
-                        placeholder="React, Node.js, MongoDB"
-                        value={project.technologies}
-                        onChange={(e) => updateProject(project.id, "technologies", e.target.value)}
-                        className="mt-1"
-                      />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-xs">Technologies Used</Label>
+                        <Input
+                          placeholder="React, Node.js, MongoDB"
+                          value={project.technologies}
+                          onChange={(e) => updateProject(project.id, "technologies", e.target.value)}
+                          className="mt-1"
+                        />
+                      </div>
+                      {userType === "fresher" && (
+                        <div>
+                          <Label className="text-xs">GitHub Link (Optional)</Label>
+                          <Input
+                            placeholder="https://github.com/username/project"
+                            value={project.githubLink || ""}
+                            onChange={(e) => updateProject(project.id, "githubLink", e.target.value)}
+                            className="mt-1"
+                            type="url"
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -986,7 +1017,7 @@ const ResumeBuilder = () => {
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     )}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                       <div>
                         <Label className="text-xs">Degree</Label>
                         <Input
@@ -1005,15 +1036,31 @@ const ResumeBuilder = () => {
                           className="mt-1"
                         />
                       </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div>
-                        <Label className="text-xs">Year</Label>
+                        <Label className="text-xs">{userType === "fresher" ? "Passing Year" : "Year"}</Label>
                         <Input
-                          placeholder="2020"
+                          placeholder="2024"
                           value={edu.year}
                           onChange={(e) => updateEducation(edu.id, "year", e.target.value)}
                           className="mt-1"
+                          type={userType === "fresher" ? "number" : "text"}
+                          min={userType === "fresher" ? "1900" : undefined}
+                          max={userType === "fresher" ? "2100" : undefined}
                         />
                       </div>
+                      {userType === "fresher" && (
+                        <div>
+                          <Label className="text-xs">CGPA / Percentage (Optional)</Label>
+                          <Input
+                            placeholder="8.5 or 85%"
+                            value={edu.cgpa || ""}
+                            onChange={(e) => updateEducation(edu.id, "cgpa", e.target.value)}
+                            className="mt-1"
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
