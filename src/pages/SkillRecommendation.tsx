@@ -3,8 +3,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Upload, FileText, Lightbulb, TrendingUp, BookOpen, Target } from "lucide-react";
+import { Lightbulb, TrendingUp, BookOpen, Target } from "lucide-react";
 
 interface SkillRecommendation {
   skill: string;
@@ -14,17 +13,9 @@ interface SkillRecommendation {
 }
 
 const SkillRecommendationPage = () => {
-  const [file, setFile] = useState<File | null>(null);
   const [careerGoal, setCareerGoal] = useState("");
-  const [currentSkills, setCurrentSkills] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [recommendations, setRecommendations] = useState<SkillRecommendation[]>([]);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
-    }
-  };
 
   const handleAnalyze = () => {
     setIsAnalyzing(true);
@@ -100,35 +91,6 @@ const SkillRecommendationPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Input Section */}
           <div className="space-y-4">
-            <div className="glass-card p-5">
-              <h2 className="font-medium mb-3 flex items-center gap-2">
-                <FileText className="w-4 h-4" />
-                Upload Resume (Optional)
-              </h2>
-              <div className="border border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
-                <input
-                  type="file"
-                  id="resume-upload"
-                  accept=".pdf,.doc,.docx"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-                <label htmlFor="resume-upload" className="cursor-pointer">
-                  <Upload className="w-8 h-8 mx-auto mb-3 text-muted-foreground" />
-                  {file ? (
-                    <div className="flex items-center justify-center gap-2 text-primary">
-                      <FileText className="w-4 h-4" />
-                      <span className="font-medium text-sm">{file.name}</span>
-                    </div>
-                  ) : (
-                    <>
-                      <p className="font-medium text-sm mb-1">Click to upload</p>
-                      <p className="text-xs text-muted-foreground">PDF or DOC (max 5MB)</p>
-                    </>
-                  )}
-                </label>
-              </div>
-            </div>
 
             <div className="glass-card p-5">
               <Label htmlFor="career-goal" className="font-medium flex items-center gap-2 mb-3">
@@ -144,19 +106,50 @@ const SkillRecommendationPage = () => {
               />
             </div>
 
-            <div className="glass-card p-5">
-              <Label htmlFor="current-skills" className="font-medium flex items-center gap-2 mb-3">
-                <BookOpen className="w-4 h-4" />
-                Current Skills
-              </Label>
-              <Textarea
-                id="current-skills"
-                placeholder="List your current skills, separated by commas (e.g., JavaScript, React, Node.js, SQL)"
-                value={currentSkills}
-                onChange={(e) => setCurrentSkills(e.target.value)}
-                className="min-h-[100px] resize-none"
-              />
-            </div>
+            {/* Required Skills for Career Goal - Read-only */}
+            {careerGoal && (
+              <div className="glass-card p-5">
+                <h2 className="font-medium flex items-center gap-2 mb-3">
+                  <BookOpen className="w-4 h-4" />
+                  Required Skills for Career Goal
+                </h2>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Based on your selected career goal
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {careerGoal.toLowerCase().includes("software") || careerGoal.toLowerCase().includes("developer") || careerGoal.toLowerCase().includes("engineer") ? (
+                    <>
+                      <span className="px-2.5 py-1 bg-primary/10 text-primary rounded-md text-sm">JavaScript</span>
+                      <span className="px-2.5 py-1 bg-primary/10 text-primary rounded-md text-sm">React</span>
+                      <span className="px-2.5 py-1 bg-primary/10 text-primary rounded-md text-sm">Node.js</span>
+                      <span className="px-2.5 py-1 bg-primary/10 text-primary rounded-md text-sm">TypeScript</span>
+                      <span className="px-2.5 py-1 bg-primary/10 text-primary rounded-md text-sm">SQL</span>
+                    </>
+                  ) : careerGoal.toLowerCase().includes("data") ? (
+                    <>
+                      <span className="px-2.5 py-1 bg-primary/10 text-primary rounded-md text-sm">Python</span>
+                      <span className="px-2.5 py-1 bg-primary/10 text-primary rounded-md text-sm">SQL</span>
+                      <span className="px-2.5 py-1 bg-primary/10 text-primary rounded-md text-sm">Machine Learning</span>
+                      <span className="px-2.5 py-1 bg-primary/10 text-primary rounded-md text-sm">Statistics</span>
+                    </>
+                  ) : careerGoal.toLowerCase().includes("design") ? (
+                    <>
+                      <span className="px-2.5 py-1 bg-primary/10 text-primary rounded-md text-sm">Figma</span>
+                      <span className="px-2.5 py-1 bg-primary/10 text-primary rounded-md text-sm">UI/UX</span>
+                      <span className="px-2.5 py-1 bg-primary/10 text-primary rounded-md text-sm">Prototyping</span>
+                      <span className="px-2.5 py-1 bg-primary/10 text-primary rounded-md text-sm">Design Systems</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="px-2.5 py-1 bg-primary/10 text-primary rounded-md text-sm">Communication</span>
+                      <span className="px-2.5 py-1 bg-primary/10 text-primary rounded-md text-sm">Problem Solving</span>
+                      <span className="px-2.5 py-1 bg-primary/10 text-primary rounded-md text-sm">Leadership</span>
+                      <span className="px-2.5 py-1 bg-primary/10 text-primary rounded-md text-sm">Teamwork</span>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
 
             <Button 
               size="lg" 

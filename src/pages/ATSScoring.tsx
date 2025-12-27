@@ -152,7 +152,7 @@ const ATSScoring = () => {
                 <div className="glass-card p-5">
                   <h2 className="font-medium mb-3 flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 text-destructive" />
-                    Missing Skills
+                    Missing Sections / Columns
                   </h2>
                   <div className="flex flex-wrap gap-2">
                     {result.missingSkills.map((skill) => (

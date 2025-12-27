@@ -1,10 +1,31 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Shell, Sun, Moon } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
 
 const Header = () => {
   const { theme, toggleTheme } = useTheme();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleScrollTo = (sectionId: string) => {
+    if (location.pathname === "/") {
+      // Already on home page, just scroll
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    } else {
+      // Navigate to home first, then scroll after a brief delay
+      navigate("/");
+      setTimeout(() => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
+    }
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 glass-card border-b border-border/30">
@@ -18,12 +39,18 @@ const Header = () => {
           </Link>
           
           <nav className="hidden md:flex items-center gap-6">
-            <Link to="/#features" className="text-muted-foreground hover:text-foreground transition-colors">
+            <button 
+              onClick={() => handleScrollTo("features")} 
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
               Features
-            </Link>
-            <Link to="/#how-it-works" className="text-muted-foreground hover:text-foreground transition-colors">
+            </button>
+            <button 
+              onClick={() => handleScrollTo("how-it-works")} 
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
               How it Works
-            </Link>
+            </button>
             <Link to="/help" className="text-muted-foreground hover:text-foreground transition-colors">
               Help
             </Link>
