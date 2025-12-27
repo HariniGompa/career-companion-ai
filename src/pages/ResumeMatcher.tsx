@@ -115,27 +115,6 @@ const ResumeMatcher = () => {
             {result ? (
               <>
                 <div className="glass-card p-5">
-                  <h2 className="font-medium mb-3 flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4 text-primary" />
-                    Match Percentage
-                  </h2>
-                  <div className="mb-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-2xl font-bold text-primary">
-                        {result.matchPercentage}%
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {result.matchPercentage >= 70 ? "Good Match" : "Needs Improvement"}
-                      </span>
-                    </div>
-                    <Progress value={result.matchPercentage} className="h-2" />
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Your resume matches {result.matchPercentage}% of the requirements for {targetRole}
-                  </p>
-                </div>
-
-                <div className="glass-card p-5">
                   <h2 className="font-medium mb-3">Recommended Skills</h2>
                   <div className="flex flex-wrap gap-2">
                     {result.recommendedSkills.map((skill) => (

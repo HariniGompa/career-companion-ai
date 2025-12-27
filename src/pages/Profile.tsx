@@ -12,6 +12,10 @@ import {
   Calendar,
   Edit,
   Loader2,
+  Upload,
+  Globe,
+  Eye,
+  RefreshCw,
 } from "lucide-react";
 import { useResumes } from "@/hooks/useResumes";
 import { useNavigate } from "react-router-dom";
@@ -36,6 +40,33 @@ const Profile = () => {
   const [profileLoading, setProfileLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  
+  // Portfolio file state (UI-only, single file)
+  const [portfolioFile, setPortfolioFile] = useState<File | null>(null);
+  const [portfolioFileName, setPortfolioFileName] = useState<string | null>(null);
+
+  const handlePortfolioUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.name.endsWith('.html')) {
+      setPortfolioFile(file);
+      setPortfolioFileName(file.name);
+      toast({ title: "Portfolio uploaded", description: file.name });
+    } else {
+      toast({ title: "Invalid file", description: "Please upload an HTML file", variant: "destructive" });
+    }
+  };
+
+  const handleViewPortfolio = () => {
+    if (portfolioFile) {
+      const url = URL.createObjectURL(portfolioFile);
+      window.open(url, '_blank');
+    }
+  };
+
+  const handleReplacePortfolio = () => {
+    setPortfolioFile(null);
+    setPortfolioFileName(null);
+  };
 
   /* ---------------- FETCH PROFILE ---------------- */
   useEffect(() => {
@@ -296,6 +327,68 @@ const Profile = () => {
               ))}
             </div>
           )}
+        </div>
+
+        {/* PORTFOLIO FILE SECTION */}
+        <div className="glass-card overflow-hidden">
+          <div className="p-6 border-b">
+            <div className="flex items-center gap-3">
+              <Globe className="text-primary" />
+              <div>
+                <h2 className="font-semibold">Portfolio File</h2>
+                <p className="text-sm text-muted-foreground">
+                  Store one HTML portfolio file
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-6">
+            {portfolioFileName ? (
+              <div className="flex items-center justify-between p-4 bg-muted/40 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <FileText className="w-5 h-5 text-primary" />
+                  <div>
+                    <p className="font-medium text-sm">{portfolioFileName}</p>
+                    <p className="text-xs text-muted-foreground">HTML Portfolio</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleViewPortfolio}
+                    aria-label="View portfolio"
+                  >
+                    <Eye className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleReplacePortfolio}
+                    aria-label="Replace portfolio"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="border border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
+                <input
+                  type="file"
+                  id="portfolio-upload"
+                  accept=".html"
+                  onChange={handlePortfolioUpload}
+                  className="hidden"
+                />
+                <label htmlFor="portfolio-upload" className="cursor-pointer">
+                  <Upload className="w-8 h-8 mx-auto mb-3 text-muted-foreground" />
+                  <p className="font-medium text-sm mb-1">Upload Portfolio</p>
+                  <p className="text-xs text-muted-foreground">HTML file only (single file)</p>
+                </label>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* ACCOUNT ACTIONS */}
