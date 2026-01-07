@@ -47,6 +47,7 @@ const Signup = () => {
       return;
     }
     
+    toast.success("Confirmation link has been sent to your registered email");
     setIsLoading(false);
     setStep("success");
   };
